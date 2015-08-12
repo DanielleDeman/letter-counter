@@ -1,0 +1,31 @@
+$light-green: #e5fff3;
+$gray: #cccccc;
+
+$primary-font: Tahoma, sans-serif;
+$input-width: 650px;
+$input-height: 200px;
+$text-height: 220px;
+
+body {
+    font-family: $primary-font;
+	background-color: $light-green;
+    text-align: center;
+}
+#analysedText {
+	width: $input-width; height: $input-height;
+    margin-left: auto; margin-right: auto;
+	border: 3px solid $gray;
+	padding: 5px;
+	font-family: $primary-font;
+    outline: none;
+    overflow: auto;
+}
+#letterCount {
+    width: $input-width; min-height: $text-height;
+    margin-left: auto; margin-right: auto;
+    text-align: left;
+}
+#letterCount .letters {
+    float: left;
+    width: $input-width/2;
+}
