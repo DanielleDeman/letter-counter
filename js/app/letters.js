@@ -1,38 +1,4 @@
-﻿//constructor for hashtable object
-function LetterHash(length, letters) {
-    this._length = length || 0;
-    this._letters = letters || {};
-}
-LetterHash.prototype = {
-    constructor: LetterHash,
-    getLength: function () {
-        return this._length;
-    },
-    getLetters: function () {
-        return this._letters;
-    },
-    getLetterCount: function (letter) {
-        return this.hasLetter(letter) ? this._letters[letter] : 0;
-    },
-    countLetter: function (letter) {
-        if (!this.hasLetter(letter)) {
-            this._length++;
-            this._letters[letter] = 1;
-        }
-        else {
-            this._letters[letter]++;
-        }
-        return this._letters[letter];
-    },
-    hasLetter: function (letter) {
-        return this._letters.hasOwnProperty(letter);
-    }
-}
-
-
-
-
-//constructor for a letter
+﻿//constructor for a letter
 function Letter(letter, count) {
     this._letter = letter;
     this._count = count;
@@ -99,13 +65,57 @@ var letterExtracter = {
 
 
 
+//hashtable object containing letters and their count
+var letterHash = {
+    length: 0,
+    letters: {},
+
+    //fill the hashTable with all the letters in the given array and their occurrences
+    countLetters: function (letterArray) {
+        this.letters = {};
+        for (var i = 0, j = letterArray.length; i < j; i++) {
+            this.countLetter(letterArray[i]);
+        }
+        return this.letters;
+    },
+
+    //count a single letter
+    countLetter: function (letter) {
+        if (!this.hasLetter(letter)) {
+            this.length++;
+            this.letters[letter] = 1;
+        }
+        else {
+            this.letters[letter]++;
+        }
+        return this.letters[letter];
+    },
+
+    //create an array of letters from the hash
+    lettersToArray: function () {
+        var arr = [];
+        for(var letter in this.letters){
+            arr[arr.length] = new Letter(letter, this.letters[letter]);
+        }
+        return arr;
+    },
+
+    //check if letter is in the hash
+    hasLetter: function (letter) {
+        return this.letters.hasOwnProperty(letter);
+    }
+}
+
+
+
+
 //object that counts letters
 var letterCounter = {
     //count the letters in the array and print to the given element
     countLettersAndUpdate: function (letters, topAmount, element, name) {
         if (letters) {
-            var letterCountHash = this.countLetters(letters),
-                sortedTopArray = this.sortTopLetters(topAmount, letterCountHash),
+            letterHash.countLetters(letters);
+            var sortedTopArray = this.sortTopLetters(topAmount),
                 topString = this.topLettersToString(sortedTopArray);
             this.update(topString, letters.length, topAmount, element, name)
         }
@@ -114,58 +124,34 @@ var letterCounter = {
         }
     },
 
-    //return a hashTable containing all the letters in the given array and their occurrences
-    countLetters: function (letterArray) {
-        var hash = new LetterHash();
-        for (var i = 0, j = letterArray.length; i < j; i++) {
-            hash.countLetter(letterArray[i]);
+
+    //compare function for two letter objects
+    compare: function (letterA, letterB) {
+        var countA = letterA.getCount(),
+            countB = letterB.getCount();
+        if (countA > countB) {
+            return -1;
         }
-        return hash;
+        if (countA < countB) {
+            return 1;
+        }
+        return 0;
     },
 
+
     //return the top letters
-    sortTopLetters: function (topAmount, letterCountHash) {
-        var sorted = [],
-            letters = letterCountHash.getLetters();
-        //loop through all the counted letters
-        for (var letter in letters) {
-            var count = letters[letter],
-                added = false;
-            //sort top
-            for (var i = 0, j = sorted.length; added == false && i < j; i++) {
-                var sortedLetter = sorted[i];
-                if (count >= sortedLetter.getCount()) {
-                    sorted = insertAt(i, letter, count, sorted);
-                    added = true;
-                }
-            }
-            //add letter if not added yet and sortedArray is smaller than top
-            if (sorted.length < topAmount && added == false) {
-                sorted[sorted.length] = new Letter(letter, count);
+    sortTopLetters: function (topAmount) {
+        var letterArray = letterHash.lettersToArray(),
+            sorted = letterArray.sort(this.compare),
+            pos = sorted.length;
+        //find slice position for top letters
+        for (var i = topAmount, j = sorted.length; i < j; i++){
+            if (sorted[i - 1].getCount() != sorted[i].getCount()) {
+                pos = i;
+                break;
             }
         }
-        //insert at position and return new sorted array
-        function insertAt(pos, letter, count, sorted) {
-            var newSorted = (pos == 0) ? [] : sorted.slice(0, pos),
-                sortedLength = sorted.length;
-            //insert
-            newSorted[pos] = new Letter(letter, count);
-            //concat remaining
-            if (pos < sortedLength) {
-                var maxSlice = sortedLength;
-                if (sortedLength >= topAmount) {
-                    var lastCount = sorted[topAmount - 1].getCount(),
-                        secondToLastCount = sorted[topAmount - 2].getCount();
-                    //check for doubles that make top larger than max
-                    if (lastCount != secondToLastCount && !(pos == topAmount - 1 && count == lastCount)) {
-                        maxSlice = topAmount - 1;
-                    }
-                }
-                newSorted = newSorted.concat(sorted.slice(pos, maxSlice));
-            }
-            return newSorted;
-        }
-        return sorted;
+        return sorted.slice(0, pos);
     },
 
     //create a string of the top letter array
@@ -186,4 +172,4 @@ var letterCounter = {
         displayString += '<p>Top ' + topAmount + ': ' + topString + '</p>';
         element.html(displayString);
     },
-};
+}

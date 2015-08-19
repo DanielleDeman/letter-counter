@@ -50,22 +50,23 @@ QUnit.module("letter counting");
 QUnit.test("count letters", function (assert) {
     function compairToObject(input, expected) {
         var inputToString = arrayToString(input);
-        assert.deepEqual(letterCounter.countLetters(input), expected, "test with input '" + inputToString + "'");
+        assert.deepEqual(letterHash.countLetters(input), expected, "test with input '" + inputToString + "'");
     }
-    compairToObject(['a', 'b', 'b', 'a', 'c', 'a', 'd', 'd', 'd', 'a'], new LetterHash(4, { 'a': 4, 'b': 2, 'c': 1, 'd': 3 }));
-    compairToObject(['q', 'u', 'a', 's', 'i'], new LetterHash(5, { 'q': 1, 'u': 1, 'a': 1, 's': 1, 'i': 1 }));
-    compairToObject(['y', 'y', 'y', 'z', 'y', 'z', 'y'], new LetterHash(2, { 'z': 2, 'y': 5 }));
+    compairToObject(['a', 'b', 'b', 'a', 'c', 'a', 'd', 'd', 'd', 'a'], { 'a': 4, 'b': 2, 'c': 1, 'd': 3 });
+    compairToObject(['q', 'u', 'a', 's', 'i'], { 'q': 1, 'u': 1, 'a': 1, 's': 1, 'i': 1 });
+    compairToObject(['y', 'y', 'y', 'z', 'y', 'z', 'y'], { 'z': 2, 'y': 5 });
 });
 
 QUnit.test("sort top", function (assert) {
     function compairToArray(input, expected) {
-        var inputToString = objectToString(input.getLetters());
-        assert.deepEqual(letterCounter.sortTopLetters(3, input), expected, "test with input '" + inputToString + "'");
+        var inputToString = objectToString(input);
+        letterHash.letters = input;
+        assert.deepEqual(letterCounter.sortTopLetters(3), expected, "test with input '" + inputToString + "'");
     }
-    compairToArray(new LetterHash(4, { 'a': 4, 'b': 2, 'c': 1, 'd': 3 }), [new Letter('a', 4), new Letter('d', 3), new Letter('b', 2)]);
-    compairToArray(new LetterHash(5, { 'q': 13, 'u': 1, 'a': 1, 's': 20, 'i': 1 }), [new Letter('s', 20), new Letter('q', 13), new Letter('i', 1), new Letter('a', 1), new Letter('u', 1)]);
-    compairToArray(new LetterHash(1, { 'y': 299 }), [new Letter('y', 299)]);
-    compairToArray(new LetterHash(), []);
+    compairToArray({ 'a': 4, 'b': 2, 'c': 1, 'd': 3 }, [new Letter('a', 4), new Letter('d', 3), new Letter('b', 2)]);
+    compairToArray({ 'q': 13, 'u': 1, 'a': 1, 's': 20, 'i': 1 }, [new Letter('s', 20), new Letter('q', 13), new Letter('u', 1), new Letter('a', 1), new Letter('i', 1)]);
+    compairToArray({ 'y': 299 }, [new Letter('y', 299)]);
+    compairToArray({}, []);
 });
 
 QUnit.test("top to string", function (assert) {
@@ -104,7 +105,7 @@ QUnit.test("count and update the DOM", function (assert) {
     }
     compairToElement(['y', 'y', 'y'], "3</p><p>Top 3: <br>1: y 3</p>");
     compairToElement(['a', 'b', 'b', 'a', 'c', 'a', 'd', 'd', 'd', 'a'], "10</p><p>Top 3: <br>1: a 4<br>2: d 3<br>3: b 2</p>");
-    compairToElement(['q', 'u', 'a', 's', 'i'], "5</p><p>Top 3: <br>1: i 1, s 1, a 1, u 1, q 1</p>");
+    compairToElement(['q', 'u', 'a', 's', 'i'], "5</p><p>Top 3: <br>1: q 1, u 1, a 1, s 1, i 1</p>");
 });
 
 QUnit.test("full count and update the DOM", function (assert) {
@@ -115,9 +116,9 @@ QUnit.test("full count and update the DOM", function (assert) {
         assert.equal(elementVow.html(), (vowelStart + expectedVow), "test with input '" + input + "'");
         assert.equal(elementCon.html(), (consonantStart + expectedCon), "test with input '" + input + "'");
     }
-    compairToElement('abc def', "2</p><p>Top 3: <br>1: e 1, a 1</p>", "4</p><p>Top 3: <br>1: f 1, d 1, c 1, b 1</p>");
-    compairToElement("EJer Ninsue bdsa HaNEnjk", "8</p><p>Top 3: <br>1: e 4<br>2: a 2<br>3: u 1, i 1</p>", "13</p><p>Top 3: <br>1: n 4<br>2: s 2, j 2</p>");
-    compairToElement("cON soN anT S", "3</p><p>Top 3: <br>1: o 2<br>2: a 1</p>", "7</p><p>Top 3: <br>1: n 3<br>2: s 2<br>3: t 1, c 1</p>");
+    compairToElement('abc def', "2</p><p>Top 3: <br>1: a 1, e 1</p>", "4</p><p>Top 3: <br>1: b 1, c 1, d 1, f 1</p>");
+    compairToElement("EJer Ninsue bdsa HaNEnjk", "8</p><p>Top 3: <br>1: e 4<br>2: a 2<br>3: i 1, u 1</p>", "13</p><p>Top 3: <br>1: n 4<br>2: j 2, s 2</p>");
+    compairToElement("cON soN anT S", "3</p><p>Top 3: <br>1: o 2<br>2: a 1</p>", "7</p><p>Top 3: <br>1: n 3<br>2: s 2<br>3: c 1, t 1</p>");
 });
 
 
